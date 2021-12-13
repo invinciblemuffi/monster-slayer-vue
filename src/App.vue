@@ -8,15 +8,20 @@
 </script>
 
 <style scoped>
+body {
+  width: 50%;
+  margin: 0 auto;
+}
+
 header {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 10vh;
-  background: chartreuse;
+  height: 7em;
+  background: darkblue;
 }
 h1 {
-  color: cornsilk;
-  font-size: 1.5rem;
+  color: whitesmoke;
+  font-size: 2.5rem;
 }
 </style>
