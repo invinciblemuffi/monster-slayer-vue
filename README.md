@@ -2,4 +2,4 @@
 
 # Monster Slayer Game with Vue 3
 
-- Deployed on ```https://ecstatic-pike-6ad744.netlify.app/```
+- Deployed on ```https://monster-slayer-vue3.netlify.app/```

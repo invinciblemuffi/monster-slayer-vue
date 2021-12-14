@@ -5,28 +5,160 @@
   <section id="monster" class="container">
     <h2>Monster Health</h2>
     <div class="healthbar">
-      <div class="healthbar__value"></div>
+      <div class="healthbar__value" :style="monsterBarStyles">
+        {{ monsterHealth }}
+      </div>
     </div>
   </section>
-  <section id="monster" class="container">
+  <section id="player" class="container">
     <h2>Your Health</h2>
     <div class="healthbar">
-      <div class="healthbar__value"></div>
+      <div class="healthbar__value" :style="playerBarStyles">
+        {{ playerHealth }}
+      </div>
     </div>
   </section>
-  <section id="controls">
-    <button>ATTACK</button>
-    <button>SPECIAL ATTACK</button>
-    <button>HEAL</button>
-    <button>SURRENDER</button>
+  <section v-if="winner" class="container flex-wrap">
+    <h2 class="w-100 text-center">Game Over!</h2>
+    <h3 v-if="winner === 'player'">You Win!</h3>
+    <h3 v-else-if="winner === 'monster'">You Lose!</h3>
+    <h3 v-else>It's a draw.</h3>
+    <button @click="startGame" class="w-100">Start New Game</button>
   </section>
-  <section id="log" class="container">
-    <h2>Battle Log</h2>
-    <ul></ul>
+  <section id="controls" v-else>
+    <button @click="attackMonster">ATTACK</button>
+    <button @click="specialAttackMonster" :disabled="mayUseSpecialAttack">
+      SPECIAL ATTACK
+    </button>
+    <button @click="healPlayer">HEAL</button>
+    <button @click="surrender">SURRENDER</button>
+  </section>
+  <section id="log" class="container flex-wrap">
+    <h2 class="w-100 text-center">Battle Log</h2>
+    <ul>
+      <li v-for="(logMsg, i) in logMessages" :key="i">
+        <span
+          :class="{
+            'log--player': logMsg.actionBy === 'player',
+            'log--monster': logMsg.actionBy === 'monster',
+          }"
+          >{{ logMsg.actionBy === "player" ? "Player " : "Monster " }}</span
+        >
+        <span v-if="logMsg.actionType === 'heal'"
+          >healed by
+          <span class="log--heal">{{ logMsg.actionValue }}</span> points</span
+        >
+        <span v-else
+          >attacks and deals
+          <span class="log--damage">{{ logMsg.actionValue }}</span> damage</span
+        >
+      </li>
+    </ul>
   </section>
 </template>
 
 <script>
+function getRandomValue(max, min) {
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+export default {
+  data() {
+    return {
+      playerHealth: 100,
+      monsterHealth: 100,
+      currentRound: 0,
+      // If the current round is divisible by 3 only then enable Special Attack Button
+      winnner: null,
+      logMessages: [],
+    };
+  },
+  computed: {
+    monsterBarStyles() {
+      if (this.monsterHealth <= 0) {
+        return { width: "0%" };
+      }
+      return { width: this.monsterHealth + "%" };
+    },
+    playerBarStyles() {
+      if (this.playerHealth <= 0) {
+        return { width: "0%" };
+      }
+      return { width: this.playerHealth + "%" };
+    },
+    mayUseSpecialAttack() {
+      return this.currentRound % 3 !== 0;
+    },
+  },
+  watch: {
+    playerHealth(currValue) {
+      if (currValue <= 0 && this.monsterHealth <= 0) {
+        // It's a Draw
+        this.winnner = "draw";
+      } else if (currValue <= 0) {
+        // Player lost
+        this.winnner = "monster";
+      }
+    },
+    monsterHealth(currValue) {
+      if (currValue <= 0 && this.playerHealth <= 0) {
+        // It's a draw
+        this.winnner = "draw";
+      } else if (currValue <= 0) {
+        // Monster Lost
+        this.winner = "player";
+      }
+    },
+  },
+  methods: {
+    startGame() {
+      this.playerHealth = 100;
+      this.monsterHealth = 100;
+      this.counter = 0;
+      this.winner = null;
+      this.logMessages = [];
+    },
+    attackMonster() {
+      this.currentRound++;
+      const attackValue = getRandomValue(12, 5);
+      this.monsterHealth -= attackValue;
+      this.addLogMessage("player", "attack", attackValue);
+      // When we attack the monster, the monster attacks back
+      this.attackPlayer();
+    },
+    attackPlayer() {
+      const attackValue = getRandomValue(15, 8);
+      this.playerHealth -= attackValue;
+      this.addLogMessage("monster", "attack", attackValue);
+    },
+    specialAttackMonster() {
+      this.currentRound++;
+      const attackValue = getRandomValue(10, 25);
+      this.monsterHealth -= attackValue;
+      this.addLogMessage("player", "attack", attackValue);
+      this.attackPlayer();
+    },
+    healPlayer() {
+      this.currentRound++;
+      const healValue = getRandomValue(8, 20);
+      this.playerHealth + healValue > 100
+        ? (this.playerHealth = 100)
+        : (this.playerHealth += healValue);
+      this.addLogMessage("player", "heal", healValue);
+      // When we heal ourself, the monster attacks back
+      this.attackPlayer();
+    },
+    surrender() {
+      this.winner = "monster";
+    },
+    addLogMessage(who, what, value) {
+      this.logMessages.unshift({
+        actionBy: who,
+        actionType: what,
+        actionValue: value,
+      });
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -40,6 +172,18 @@ header {
 h1 {
   color: whitesmoke;
   font-size: 2.5rem;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
 }
 
 .container {
@@ -60,15 +204,20 @@ section {
 .healthbar {
   width: 100%;
   height: 40px;
-  border: 1px solid #575757;
+  border: 1px solid gray;
   margin: 1rem 0;
-  background: #fde5e5;
+  background: lightpink;
 }
 
 .healthbar__value {
-  background-color: #00a876;
+  background-color: darkgreen;
   width: 100%;
   height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5em;
 }
 
 #monster h2,
