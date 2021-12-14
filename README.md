@@ -3,3 +3,6 @@
 # Monster Slayer Game with Vue 3
 
 - Deployed on ```https://monster-slayer-vue3.netlify.app/```
+
+## Functionalities of this game
+![Monster Slayer Functionalities Screenshot](./src/assets/monster-slayer-shot.png)
