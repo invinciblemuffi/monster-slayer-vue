@@ -3,20 +3,18 @@
     <h1>Monster Slayer</h1>
   </header>
   <section id="monster" class="container">
-    <h2>Monster Health</h2>
-    <div class="healthbar">
-      <div class="healthbar__value" :style="monsterBarStyles">
-        {{ monsterHealth }}
-      </div>
-    </div>
+    <health-bar
+      name="monster"
+      :monsterHealth="monsterHealth"
+      :styleClass="monsterBarStyles"
+    />
   </section>
   <section id="player" class="container">
-    <h2>Your Health</h2>
-    <div class="healthbar">
-      <div class="healthbar__value" :style="playerBarStyles">
-        {{ playerHealth }}
-      </div>
-    </div>
+    <health-bar
+      name="your"
+      :monsterHealth="playerHealth"
+      :styleClass="playerBarStyles"
+    />
   </section>
   <section v-if="winner" class="container flex-wrap">
     <h2 class="w-100 text-center">Game Over!</h2>
@@ -58,10 +56,14 @@
 </template>
 
 <script>
+import HealthBar from "./components/HealthBar.vue";
 function getRandomValue(max, min) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 export default {
+  components: {
+    HealthBar,
+  },
   data() {
     return {
       playerHealth: 100,
@@ -199,31 +201,6 @@ section {
   width: 85%;
   max-width: 85%;
   margin: 1em auto;
-}
-
-.healthbar {
-  width: 100%;
-  height: 40px;
-  border: 1px solid gray;
-  margin: 1rem 0;
-  background: lightpink;
-}
-
-.healthbar__value {
-  background-color: darkgreen;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 1.5em;
-}
-
-#monster h2,
-#player h2 {
-  margin: 0.25rem;
-  width: 30%;
 }
 
 #controls {
