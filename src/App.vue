@@ -2,6 +2,7 @@
   <header>
     <h1>Monster Slayer</h1>
   </header>
+  {{ winner }}
   <section id="monster" class="container">
     <health-bar
       name="monster"
@@ -70,7 +71,7 @@ export default {
       monsterHealth: 100,
       currentRound: 0,
       // If the current round is divisible by 3 only then enable Special Attack Button
-      winnner: null,
+      winnner: "",
       logMessages: [],
     };
   },
@@ -116,7 +117,7 @@ export default {
       this.playerHealth = 100;
       this.monsterHealth = 100;
       this.counter = 0;
-      this.winner = null;
+      this.winner = "";
       this.logMessages = [];
     },
     attackMonster() {
@@ -151,6 +152,7 @@ export default {
     },
     surrender() {
       this.winner = "monster";
+      console.log(this.winner);
     },
     addLogMessage(who, what, value) {
       this.logMessages.unshift({
